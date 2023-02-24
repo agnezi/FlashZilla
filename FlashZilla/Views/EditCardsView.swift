@@ -9,7 +9,7 @@ import SwiftUI
 struct EditCardsView: View {
 	@Environment(\.dismiss) var dismiss
 	
-	@StateObject var model = CardsViewModel()
+	@EnvironmentObject var model: CardsViewModel
 	
 	@State private var prompt = ""
 	@State private var answer = ""
@@ -23,16 +23,14 @@ struct EditCardsView: View {
 					
 					Button("Add card") {
 						
-						var trimmedPrompt = prompt.trimmingCharacters(in: .whitespaces)
-						var trimmedAnswer = answer.trimmingCharacters(in: .whitespaces)
+						let trimmedPrompt = prompt.trimmingCharacters(in: .whitespaces)
+						let trimmedAnswer = answer.trimmingCharacters(in: .whitespaces)
 						
 						guard trimmedPrompt.isEmpty == false && trimmedAnswer.isEmpty == false else { return }
 						
 						let newCard = CardModel(prompt: trimmedPrompt, answer: trimmedAnswer)
 						
-						withAnimation {
-							model.addCard(newCard)
-						}
+						model.addCard(newCard)
 						
 						prompt = ""
 						answer = ""
@@ -40,7 +38,7 @@ struct EditCardsView: View {
 					.buttonStyle(.bordered)
 				}
 				Section {
-					ForEach(0..<model.cards.count, id: \.self) { index in
+					ForEach(Array(model.cards.enumerated()), id: \.element) { index, element in
 						VStack(alignment: .leading) {
 							Text(model.cards[index].prompt)
 								.font(.headline)

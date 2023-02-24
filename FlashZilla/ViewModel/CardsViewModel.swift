@@ -5,6 +5,7 @@
 //
 
 import Foundation
+import System
 
 
 @MainActor
@@ -12,24 +13,20 @@ class CardsViewModel: ObservableObject {
 	@Published private(set) var cards: [CardModel]
 	
 	let saveKey = "SavedData"
-	
-	init() {
-		if let data = UserDefaults.standard.data(forKey: saveKey) {
-			if let decoded = try? JSONDecoder().decode([CardModel].self, from: data) {
-				cards = decoded
-				return
-			}
-		}
-		
-		cards = [CardModel](repeating: CardModel.example, count: 3)
-	}
+	let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+
 	
 	private func save() {
-		if let encoded = try? JSONEncoder().encode(cards) {
-			UserDefaults.standard.set(encoded, forKey: saveKey)
+		if let jsonData = try? JSONEncoder().encode(cards) {
+			let url = paths[0].appendingPathComponent("cards.json")
+			
+			do {
+				try jsonData.write(to: url)
+			} catch {
+				print("could not save data: \(error.localizedDescription)")
+			}
 		}
 	}
-	
 	
 	func removeCard(at index: Int) {
 		guard index >= 0 else { return }
@@ -51,5 +48,21 @@ class CardsViewModel: ObservableObject {
 	func addCard(_ card: CardModel) {
 		cards.insert(card, at: 0)
 		save()
+	}
+	
+	
+	init() {
+		print("Init")
+		let url = paths[0].appendingPathComponent("cards.json")
+		do {
+			let data = try Data(contentsOf: url)
+			let decoded = try JSONDecoder().decode([CardModel].self, from: data )
+			
+			cards = decoded
+		
+		} catch {
+			print("Error on load file: \(error.localizedDescription)")
+			cards = [CardModel](repeating: CardModel.example, count: 3)
+		}
 	}
 }

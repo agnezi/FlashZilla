@@ -76,7 +76,11 @@ struct CardComponent: View {
 							
 							removal?()
 						} else {
-							offset = .zero
+							if offset.width > 0 {
+								offset = CGSize(width: 0.1, height: 0)
+							} else {
+								offset = .zero
+							}
 						}
 					}
 			)

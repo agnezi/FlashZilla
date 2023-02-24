@@ -7,8 +7,12 @@
 import SwiftUI
 
 struct ContentView: View {
+	
+	@StateObject var model = CardsViewModel()
+	
 	var body: some View {
 		StackOfCardsView()
+			.environmentObject(model)
 	}
 }
 

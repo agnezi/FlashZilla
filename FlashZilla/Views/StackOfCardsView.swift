@@ -11,7 +11,7 @@ struct StackOfCardsView: View {
 	@Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
 	@Environment(\.scenePhase) private var scenePhase
 	
-	@StateObject var model = CardsViewModel()
+	@EnvironmentObject var model: CardsViewModel
 	
 	@State private var timeRemaining = 100
 	@State private var isActive = true
@@ -29,7 +29,7 @@ struct StackOfCardsView: View {
 				TimerText(timeRemaining: timeRemaining)
 				
 				ZStack {
-					ForEach(0..<model.cards.count, id: \.self) { index in
+					ForEach(Array(model.cards.enumerate()), id: \.element) { index, element in
 						CardComponent(card: model.cards[index]) {
 							withAnimation {
 								model.removeCard(at: index)
